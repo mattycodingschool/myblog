@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+
+<link rel="stylesheet" type="text/css" href="mystylesocool.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="icon" type="image/x-icon" href="./images/favicon.png">
+<title>mattyberman</title>
+<meta name="main" content="noindex">
+<html lang="en">
+
+<head>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-PM9C59C2MH"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-PM9C59C2MH');
+    </script>
+
+</head>
+
+<body>
+    <div class="row">
+        <div class="pages">
+            <h2><a href="./mattyberman.html" class="mainlink">matty<br>berman</a></h2>
+            <a class="mainlink" href="https://www.instagram.com/matty.berman"><i style="font-size:24px"
+                    class="fa">&#xf16d;</i></a><br><br>
+
+            <div class="dropdown">
+                <button id="showButton" onclick="dropdownMenu()" class="dropbtn">∨∨∨</button>
+                <div id="myDropdown" class="dropdown-content">
+                    <a href="./about/about.html">about</a><br><br>
+                    <a href="./music/music.html">music i love</a><br><br>
+                    <a href="./lore/lore.html">lore</a><br><br>
+                    <a href="./lyricsquotes/lyrics_and_quotes.html">lyrics & quotes</a><br><br>
+                    <a href="./writings/writings.html">random writings</a><br><br>
+                    <a href="./anecdotes/anecdotes.html">anecdotes</a><br><br>
+                    <a href="./tips/tips.html">tips</a><br><br>
+                    <button id="hideButton" onclick="hideDropdownMenu()" class="dropbtn"> ∧∧∧ </button>
+                </div>
+            </div>
+
+            <!-- <a href="./about/about.html">about</a><br><br>
+            <a href="./music/music.html">music i love</a><br><br>
+            <a href="./lore/lore.html">lore</a><br><br>
+            <a href="./lyricsquotes/lyrics_and_quotes.html">lyrics & quotes</a><br><br>
+            <a href="./writings/writings.html">random writings</a><br><br>
+            <a href="./anecdotes/anecdotes.html">anecdotes</a><br><br>
+            <a href="./tips/tips.html">tips</a> -->
+
+        </div>
+        <div class="main">
+            <h1>WELCOME!</h1>
+            <h2>more welcomes</h2>
+        </div>
+
+
+    </div>
+    <div id="dragDiv1" class="dragDivstyle">
+        <div id="dragDiv1header" class="dragDivheaderstyle">
+            <img src="./folderimage.png" alt="Image" ondblclick="aboutSend()"><br>
+            <a href="./about/about.html">about</a>
+        </div>
+    </div>
+    <div id="dragDiv2" class="dragDivstyle">
+        <div id="dragDiv2header" class="dragDivheaderstyle">
+            <img src="./folderimage.png" alt="Image" ondblclick="musicSend()"><br>
+            <a href="./music/music.html">music i love</a><br><br>
+        </div>
+    </div>
+    <div id="dragDiv3" class="dragDivstyle">
+        <div id="dragDiv2header" class="dragDivheaderstyle">
+            <img src="./folderimage.png" alt="Image" ondblclick="loreSend()"><br>
+            <a href="./lore/lore.html">lore</a><br><br>
+        </div>
+    </div>
+    <div id="dragDiv4" class="dragDivstyle">
+        <div id="dragDiv2header" class="dragDivheaderstyle">
+            <img src="./folderimage.png" alt="Image" ondblclick="lyricSend()"><br>
+            <a href="./lyricsquotes/lyrics_and_quotes.html">lyrics & quotes</a><br><br>
+        </div>
+    </div>
+    <div id="dragDiv5" class="dragDivstyle">
+        <div id="dragDiv2header" class="dragDivheaderstyle">
+            <img src="./folderimage.png" alt="Image" ondblclick="writingSend()"><br>
+            <a href="./writings/writings.html">random writings</a><br><br>
+        </div>
+    </div>
+    <div id="dragDiv6" class="dragDivstyle">
+        <div id="dragDiv2header" class="dragDivheaderstyle">
+            <img src="./folderimage.png" alt="Image" ondblclick="anecdoteSend()"><br>
+            <a href="./anecdotes/anecdotes.html">anecdotes</a><br><br>
+        </div>
+    </div>
+    <div id="dragDiv7" class="dragDivstyle">
+        <div id="dragDiv2header" class="dragDivheaderstyle">
+            <img src="./folderimage.png" alt="Image" ondblclick="tipsSend()"><br>
+            <a href="./tips/tips.html">tips</a>
+        </div>
+    </div>
+
+
+    <!-- why are you inspect elementing here... hi! -->
+    <!-- <br>things to add here - a music player mauybe - mute button and everything !?!?!? random place button ?!?
+    something that follows cursor -->
+    <script src="scripts/cat.js"></script>
+    <script>
+        //Make the DIV element draggagle:
+        dragElement(document.getElementById("dragDiv1"));
+        dragElement(document.getElementById("dragDiv2"));
+        dragElement(document.getElementById("dragDiv3"));
+        dragElement(document.getElementById("dragDiv4"));
+        dragElement(document.getElementById("dragDiv5"));
+        dragElement(document.getElementById("dragDiv6"));
+        dragElement(document.getElementById("dragDiv7"));
+
+        function dragElement(elmnt) {
+            var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+            if (document.getElementById(elmnt.id + "header")) {
+                /* if present, the header is where you move the DIV from:*/
+                document.getElementById(elmnt.id + "header").onmousedown = dragMouseDown;
+            } else {
+                /* otherwise, move the DIV from anywhere inside the DIV:*/
+                elmnt.onmousedown = dragMouseDown;
+            }
+
+            function dragMouseDown(e) {
+                e = e || window.event;
+                e.preventDefault();
+                // get the mouse cursor position at startup:
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                document.onmouseup = closeDragElement;
+                // call a function whenever the cursor moves:
+                document.onmousemove = elementDrag;
+            }
+
+            function elementDrag(e) {
+                e = e || window.event;
+                e.preventDefault();
+                // calculate the new cursor position:
+                pos1 = pos3 - e.clientX;
+                pos2 = pos4 - e.clientY;
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                // set the element's new position:
+                elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+                elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+            }
+
+            function closeDragElement() {
+                /* stop moving when mouse button is released:*/
+                document.onmouseup = null;
+                document.onmousemove = null;
+            }
+        }
+
+        function aboutSend() {
+            window.location.href = "./about/about.html"
+        }
+        function musicSend() {
+            window.location.href = "./music/music.html"
+        }
+        function loreSend() {
+            window.location.href = "./lore/lore.html"
+        }
+        function lyricsSend() {
+            window.location.href = "./lyricsquotes/lyrics_and_quotes.html"
+        }
+        function writingSend() {
+            window.location.href = "./writings/writings.html"
+        }
+        function anecdoteSend() {
+            window.location.href = "./anecdotes/anecdotes.html"
+        }
+        function tipsSend() {
+            window.location.href = "./tips/tips.html"
+        }
+
+        function dropdownMenu() {
+            var dropdown = document.getElementById("myDropdown");
+            var showButton = document.getElementById("showButton")
+            dropdown.style.display = "block";
+            showButton.style.display = "none";
+        }
+
+        function hideDropdownMenu() {
+            var dropdown = document.getElementById("myDropdown");
+            var showButton = document.getElementById("showButton")
+            dropdown.style.display = "none";
+            showButton.style.display = "block";
+        }
+    </script>
+</body>
+
+</html>
