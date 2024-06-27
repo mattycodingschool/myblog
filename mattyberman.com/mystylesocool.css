@@ -1,0 +1,316 @@
+body {
+    font-family: 'Times New Roman', Times, serif;
+    color: #222;
+}
+
+h1 {
+    text-align: left;
+}
+
+h2 {
+    text-align: left;
+}
+
+table {
+    border-collapse: collapse;
+    width: 75%
+}
+
+body {
+    padding-top: 5%;
+    padding-left: 10%;
+    padding-right: 10%;
+}
+
+.test {
+    text-align: center;
+    width: 75%
+}
+
+.pages {
+
+    float: left;
+    width: 20%;
+    /* padding-left: 10%; */
+    height: 100%;
+    /* Should be removed. Only for demonstration */
+}
+
+.main {
+
+    float: left;
+    width: 50%;
+    /* padding: 10px; */
+    height: 100%;
+    /* Should be removed. Only for demonstration */
+}
+
+.row:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+
+/* links ! */
+
+a:link {
+    color: darkgray;
+    background-color: transparent;
+    text-decoration: none;
+}
+
+a:visited {
+    color: darkgray;
+    background-color: transparent;
+    text-decoration: none;
+}
+
+a:hover {
+    color: grey;
+    background-color: transparent;
+    text-decoration: none;
+}
+
+a:active {
+    color: lightgray;
+    background-color: transparent;
+    text-decoration: none;
+}
+
+.music-suggestion {
+    /* 
+    width: 20%;
+    position: fixed;
+    top: 5%;
+    right: 10%; */
+    /* padding: 10px; */
+    /* border-radius: 5px; */
+    /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); */
+    z-index: 9999;
+    /* Ensure it's above other content */
+    float: right;
+    width: 25%;
+    /* padding: 10px; */
+    height: 100%;
+    margin-left: 5%
+}
+
+.music-suggestion h3 {
+    margin-top: 2px;
+    margin-bottom: 2px;
+    font-size: 16px;
+}
+
+a.mainlink:link {
+    color: black
+}
+
+a.mainlink:visited {
+    color: black
+}
+
+a.mainlink:hover {
+    color: grey;
+}
+
+.twittervideo {
+    padding-left: 25%;
+    padding-right: 25%;
+    border-left: none;
+}
+
+.twittertext {
+    padding-left: 10%;
+    padding-right: 10%;
+    border-left: none;
+
+}
+
+.middle {
+    text-align: center;
+}
+
+blockquote {
+    margin: 20px 0 30px;
+    padding-left: 20px;
+    border-left: 5px solid #7e13b8;
+    font-style: italic;
+}
+
+
+#image-container {
+    position: relative;
+    width: 400px;
+    /* Adjust the width and height as needed */
+    height: 400px;
+}
+
+#placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: black;
+    /* Change the background color to black */
+    cursor: pointer;
+    /* Show pointer cursor when hovering over the placeholder */
+}
+
+#placeholder:hover {
+    opacity: 0.9;
+}
+
+#actual-image {
+    /* display: none; */
+    /* Initially hide the actual image */
+    width: 100%;
+    height: 100%;
+}
+
+#white {
+    color: white;
+    text-align: center;
+    padding: 100px 0;
+    font-size: 30px;
+}
+
+#white2 {
+    color: white;
+    text-align: center;
+}
+
+#heartimages {
+    width: 50%;
+    height: 50%;
+}
+
+.smaller {
+    width: 25%;
+    height: 25%;
+}
+
+/* 
+#draggable-square {
+    width: 100px;
+    height: 100px;
+    background-color: lightblue;
+    text-align: center;
+    cursor: move;
+    user-select: none;
+}
+
+#draggable-square img {
+    width: 80px;
+    height: 80px;
+    margin-top: 10px;
+}
+
+#draggable-square p {
+    margin: 0;
+    padding: 5px;
+} */
+
+.dragDivstyle {
+    position: absolute;
+    z-index: 1;
+    /* background-color: darkslategray; */
+    text-align: center;
+}
+
+.dragDivheaderstyle {
+    /* padding: 10px; */
+    cursor: pointer;
+    z-index: 2;
+    /* background-color: #2196F3; */
+    color: black;
+    text-align: center;
+}
+
+.dragDivheaderstyle img {
+    width: 66.6px;
+    height: 54px;
+    /* border: 1px solid #d3d3d3;
+    background-color: grey;
+    border-radius: 5px;
+    border-width: 2px;
+    border-color: lightgrey;*/
+    padding: 5%;
+}
+
+.dragDivheaderstyle img:hover {
+    width: 66.6px;
+    height: 54px;
+    border: 1px solid #d3d3d3;
+    background-color: grey;
+    border-radius: 5px;
+    border-width: 2px;
+    border-color: lightgrey;
+}
+
+#dragDiv1 {
+    top: 40%;
+    left: 60%;
+}
+
+#dragDiv2 {
+    top: 50%;
+    left: 80%;
+}
+
+#dragDiv3 {
+    top: 20%;
+    left: 45%;
+}
+
+#dragDiv4 {
+    top: 22%;
+    left: 70%;
+}
+
+#dragDiv5 {
+    top: 40%;
+    left: 30%;
+}
+
+#dragDiv6 {
+    top: 70%;
+    left: 85%;
+}
+
+#dragDiv7 {
+    top: 65%;
+    left: 20%;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    /* background-color: #f1f1f1;
+    min-width: 160px;
+    overflow: auto;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    z-index: 1; */
+}
+
+.dropbtn {
+    background: none;
+    color: darkgray;
+    border-width: 2px;
+    border-radius: 5px;
+    padding-left: 5%;
+    padding-right: 5%;
+    cursor: pointer;
+
+}
+
+.dropbtn:hover {
+    color: grey;
+    background-color: darkgray;
+}
+
+.dropbtn:active {
+    color: lightgrey;
+    background-color: grey;
+}

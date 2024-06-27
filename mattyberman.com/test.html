@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+
+<head>
+    <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+    <link rel="stylesheet" type="text/css" href="mystylesocool.css">
+</head>
+
+<body>
+    <div id="nav-placeholder">
+
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', 'nav.html', true);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                    document.getElementById('nav-placeholder').innerHTML = xhr.responseText;
+                }
+            };
+            xhr.send();
+        });
+    </script>
+
+    <!-- ahh -->
+</body>
