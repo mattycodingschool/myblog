@@ -260,12 +260,12 @@ blockquote {
 }
 
 #dragDiv3 {
-    top: 20%;
+    top: 15%;
     left: 45%;
 }
 
 #dragDiv4 {
-    top: 22%;
+    top: 17%;
     left: 70%;
 }
 
@@ -285,7 +285,7 @@ blockquote {
 }
 
 .dropdown-content {
-    display: none;
+    /* display: none; */
     position: absolute;
     /* background-color: #f1f1f1;
     min-width: 160px;
@@ -295,6 +295,19 @@ blockquote {
 }
 
 .dropbtn {
+    display: none;
+    background: none;
+    color: darkgray;
+    border-width: 2px;
+    border-radius: 5px;
+    padding-left: 5%;
+    padding-right: 5%;
+    cursor: pointer;
+
+}
+
+
+.dropbtn2 {
     background: none;
     color: darkgray;
     border-width: 2px;
@@ -314,3 +327,15 @@ blockquote {
     color: lightgrey;
     background-color: grey;
 }
+
+.dropbtn2:hover {
+    color: grey;
+    background-color: darkgray;
+}
+
+.dropbtn2:active {
+    color: lightgrey;
+    background-color: grey;
+}
+
+/* hi */
