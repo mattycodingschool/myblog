@@ -151,7 +151,7 @@ const TINTS = {
 document.querySelectorAll('#links a').forEach(a => {
   const g = TINTS[a.getAttribute('aria-label')];
   if (!g) return;
-  a.addEventListener('mouseenter', () => {
+  const show = () => {
     if (tintCurrent !== g) {
       tintFront = 1 - tintFront;
       tintLayers[tintFront].style.background = g;
@@ -159,10 +159,15 @@ document.querySelectorAll('#links a').forEach(a => {
     }
     tintLayers[tintFront].style.opacity = '0.95';
     tintLayers[1 - tintFront].style.opacity = '0';
-  });
-  a.addEventListener('mouseleave', () => {
+  };
+  const hide = () => {
     tintLayers.forEach(l => l.style.opacity = '0');
-  });
+  };
+  a.addEventListener('mouseenter', show);
+  a.addEventListener('mouseleave', hide);
+  a.addEventListener('touchstart', show, { passive: true });
+  a.addEventListener('touchend', hide);
+  a.addEventListener('touchcancel', hide);
 });
 
 const canvas = document.getElementById('gl');
