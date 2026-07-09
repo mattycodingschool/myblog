@@ -78,11 +78,25 @@
     transform: scale(1.12) translateY(-3px);
     background: linear-gradient(160deg, rgba(255,255,255,0.42), rgba(255,255,255,0.16) 55%, rgba(255,255,255,0.24));
   }
+  .tintlayer {
+    position: fixed; inset: 0; z-index: 4;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+    mix-blend-mode: color;
+  }
+  @media (max-width: 600px) {
+    #links { gap: 4.6vw; padding: 3.2vw; border-radius: 7.6vw; }
+    #links a { width: 14vw; height: 14vw; }
+  }
 </style>
 </head>
 <body>
 
 <canvas id="gl"></canvas>
+
+<div class="tintlayer"></div>
+<div class="tintlayer"></div>
 
 <div id="ui"><h1>matty<br>berman</h1></div>
 
@@ -123,6 +137,33 @@ document.querySelectorAll('#links svg').forEach(s => {
   const size = (Math.max(b.width, b.height) + sw) * 1.02;
   const cx = b.x + b.width / 2, cy = b.y + b.height / 2;
   s.setAttribute('viewBox', `${cx - size / 2} ${cy - size / 2} ${size} ${size}`);
+});
+
+/* hovering a dock tile washes the visuals in that brand's color;
+   two stacked layers crossfade so tile-to-tile hops blend smoothly */
+const tintLayers = [...document.querySelectorAll('.tintlayer')];
+let tintFront = 0, tintCurrent = null;
+const TINTS = {
+  instagram: 'radial-gradient(circle at 28% 110%, #feda75 0%, #fa7e1e 28%, #d62976 58%, #962fbf 85%, #4f5bd5 100%)',
+  linkedin: 'linear-gradient(160deg, #003a75, #ffffff 55%, #00284f)',
+  email: 'linear-gradient(180deg, #40d4e8, #19c9fb 50%, #7fe8d8)',
+  archive: 'linear-gradient(160deg, #9a9aa0, #6e6e74)',
+};
+document.querySelectorAll('#links a').forEach(a => {
+  const g = TINTS[a.getAttribute('aria-label')];
+  if (!g) return;
+  a.addEventListener('mouseenter', () => {
+    if (tintCurrent !== g) {
+      tintFront = 1 - tintFront;
+      tintLayers[tintFront].style.background = g;
+      tintCurrent = g;
+    }
+    tintLayers[tintFront].style.opacity = '0.95';
+    tintLayers[1 - tintFront].style.opacity = '0';
+  });
+  a.addEventListener('mouseleave', () => {
+    tintLayers.forEach(l => l.style.opacity = '0');
+  });
 });
 
 const canvas = document.getElementById('gl');
