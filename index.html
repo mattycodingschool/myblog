@@ -37,11 +37,11 @@
   }
   #links {
     position: fixed; bottom: clamp(16px, 4vw, 30px); left: 50%; transform: translateX(-50%); z-index: 6;
-    display: flex; justify-content: center; align-items: center; gap: clamp(10px, 4vw, 42px);
+    display: flex; justify-content: center; align-items: center; gap: clamp(12px, 3vw, 16px);
     max-width: calc(100vw - 20px); box-sizing: border-box;
     font-family: 'Times New Roman', Times, serif;
-    padding: clamp(9px, 2.4vw, 13px) clamp(14px, 4vw, 34px);
-    border-radius: 999px;
+    padding: clamp(10px, 2.6vw, 13px);
+    border-radius: clamp(23px, 5.6vw, 29px);
     /* liquid glass */
     background: linear-gradient(rgba(255,255,255,0.16), rgba(255,255,255,0.05));
     backdrop-filter: blur(18px) saturate(165%);
@@ -52,16 +52,32 @@
                 inset 0 -1px 0 rgba(255,255,255,0.06);
   }
   #links a {
-    color: rgba(242, 242, 238, 0.72);
-    text-decoration: none;
-    font-style: italic;
-    font-size: clamp(11.5px, 3.2vw, 15px);
-    letter-spacing: clamp(0.04em, 1vw, 0.14em);
-    white-space: nowrap;
-    text-shadow: 0 0 16px rgba(0,0,0,0.8);
-    transition: color 0.3s ease;
+    color: rgba(255, 255, 255, 0.82);
+    display: flex; align-items: center; justify-content: center;
+    width: clamp(40px, 10vw, 48px);
+    height: clamp(40px, 10vw, 48px);
+    border-radius: 26%;
+    /* frosted app tile */
+    background: linear-gradient(160deg, rgba(255,255,255,0.30), rgba(255,255,255,0.10) 55%, rgba(255,255,255,0.16));
+    backdrop-filter: blur(14px) saturate(160%);
+    -webkit-backdrop-filter: blur(14px) saturate(160%);
+    border: 1px solid rgba(255,255,255,0.28);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.35),
+                inset 0 1px 0 rgba(255,255,255,0.45),
+                inset 0 -1px 1px rgba(255,255,255,0.08);
+    transition: transform 0.25s ease, background 0.25s ease, color 0.25s ease;
   }
-  #links a:hover { color: #ffffff; }
+  #links a svg {
+    width: 68%;
+    height: 68%;
+    display: block;
+    filter: drop-shadow(0 1px 3px rgba(0,0,0,0.35));
+  }
+  #links a:hover {
+    color: #ffffff;
+    transform: scale(1.12) translateY(-3px);
+    background: linear-gradient(160deg, rgba(255,255,255,0.42), rgba(255,255,255,0.16) 55%, rgba(255,255,255,0.24));
+  }
 </style>
 </head>
 <body>
@@ -71,13 +87,44 @@
 <div id="ui"><h1>matty<br>berman</h1></div>
 
 <div id="links">
-  <a href="https://www.instagram.com/matty.berman" target="_blank" rel="noopener">instagram</a>
-  <a href="https://www.linkedin.com/in/matthew-berman-27a361396" target="_blank" rel="noopener">linkedin</a>
-  <a href="mailto:matty_berman@brown.edu">email</a>
-  <a href="./archive/">archive</a>
+  <a href="https://www.instagram.com/matty.berman" target="_blank" rel="noopener" aria-label="instagram" title="instagram">
+    <svg viewBox="16.5 16.5 99 99" fill="currentColor">
+      <path d="M66.004 18c-13.036 0-14.672.057-19.792.29-5.11.234-8.598 1.043-11.65 2.23-3.157 1.226-5.835 2.866-8.503 5.535-2.67 2.668-4.31 5.346-5.54 8.502-1.19 3.053-2 6.542-2.23 11.65C18.06 51.327 18 52.964 18 66s.058 14.667.29 19.787c.235 5.11 1.044 8.598 2.23 11.65 1.227 3.157 2.867 5.835 5.536 8.503 2.667 2.67 5.345 4.314 8.5 5.54 3.054 1.187 6.543 1.996 11.652 2.23 5.12.233 6.755.29 19.79.29 13.037 0 14.668-.057 19.788-.29 5.11-.234 8.602-1.043 11.656-2.23 3.156-1.226 5.83-2.87 8.497-5.54 2.67-2.668 4.31-5.346 5.54-8.502 1.18-3.053 1.99-6.542 2.23-11.65.23-5.12.29-6.752.29-19.788 0-13.036-.06-14.672-.29-19.792-.24-5.11-1.05-8.598-2.23-11.65-1.23-3.157-2.87-5.835-5.54-8.503-2.67-2.67-5.34-4.31-8.5-5.535-3.06-1.187-6.55-1.996-11.66-2.23-5.12-.233-6.75-.29-19.79-.29zm-4.306 8.65c1.278-.002 2.704 0 4.306 0 12.816 0 14.335.046 19.396.276 4.68.214 7.22.996 8.912 1.653 2.24.87 3.837 1.91 5.516 3.59 1.68 1.68 2.72 3.28 3.592 5.52.657 1.69 1.44 4.23 1.653 8.91.23 5.06.28 6.58.28 19.39s-.05 14.33-.28 19.39c-.214 4.68-.996 7.22-1.653 8.91-.87 2.24-1.912 3.835-3.592 5.514-1.68 1.68-3.275 2.72-5.516 3.59-1.69.66-4.232 1.44-8.912 1.654-5.06.23-6.58.28-19.396.28-12.817 0-14.336-.05-19.396-.28-4.68-.216-7.22-.998-8.913-1.655-2.24-.87-3.84-1.91-5.52-3.59-1.68-1.68-2.72-3.276-3.592-5.517-.657-1.69-1.44-4.23-1.653-8.91-.23-5.06-.276-6.58-.276-19.398s.046-14.33.276-19.39c.214-4.68.996-7.22 1.653-8.912.87-2.24 1.912-3.84 3.592-5.52 1.68-1.68 3.28-2.72 5.52-3.592 1.692-.66 4.233-1.44 8.913-1.655 4.428-.2 6.144-.26 15.09-.27zm29.928 7.97c-3.18 0-5.76 2.577-5.76 5.758 0 3.18 2.58 5.76 5.76 5.76 3.18 0 5.76-2.58 5.76-5.76 0-3.18-2.58-5.76-5.76-5.76zm-25.622 6.73c-13.613 0-24.65 11.037-24.65 24.65 0 13.613 11.037 24.645 24.65 24.645C79.617 90.645 90.65 79.613 90.65 66S79.616 41.35 66.003 41.35zm0 8.65c8.836 0 16 7.163 16 16 0 8.836-7.164 16-16 16-8.837 0-16-7.164-16-16 0-8.837 7.163-16 16-16z"/>
+    </svg>
+  </a>
+  <a href="https://www.linkedin.com/in/matthew-berman-27a361396" target="_blank" rel="noopener" aria-label="linkedin" title="linkedin">
+    <svg viewBox="8.5 8.5 55 55" fill="currentColor">
+      <path d="M62,62 L51.315625,62 L51.315625,43.8021149 C51.315625,38.8127542 49.4197917,36.0245323 45.4707031,36.0245323 C41.1746094,36.0245323 38.9300781,38.9261103 38.9300781,43.8021149 L38.9300781,62 L28.6333333,62 L28.6333333,27.3333333 L38.9300781,27.3333333 L38.9300781,32.0029283 C38.9300781,32.0029283 42.0260417,26.2742151 49.3825521,26.2742151 C56.7356771,26.2742151 62,30.7644705 62,40.051212 L62,62 Z M16.349349,22.7940133 C12.8420573,22.7940133 10,19.9296567 10,16.3970067 C10,12.8643566 12.8420573,10 16.349349,10 C19.8566406,10 22.6970052,12.8643566 22.6970052,16.3970067 C22.6970052,19.9296567 19.8566406,22.7940133 16.349349,22.7940133 Z M11.0325521,62 L21.769401,62 L21.769401,27.3333333 L11.0325521,27.3333333 L11.0325521,62 Z"/>
+    </svg>
+  </a>
+  <a href="mailto:matty_berman@brown.edu" aria-label="email" title="email">
+    <svg viewBox="83 141.5 460 350" fill="currentColor">
+      <g transform="translate(0,-450.36218)">
+        <g transform="matrix(6.6666666,0,0,6.6666666,-5.6668106,-5957.7191)">
+          <path transform="translate(0,450.36218)" d="m 20.71875,536.59375 c -0.474202,0 -0.920938,0.0818 -1.34375,0.25 l 8.46875,8.71875 8.5625,8.875 0.15625,0.1875 0.25,0.25 0.25,0.25 0.5,0.53125 7.34375,7.53125 c 0.122269,0.076 0.476602,0.4042 0.753434,0.54258 0.356583,0.17824 0.743089,0.34255 1.141484,0.3568 0.42992,0.0154 0.869334,-0.10782 1.256181,-0.29601 0.289732,-0.14096 0.418572,-0.34294 0.755151,-0.60337 l 8.5,-8.78125 8.59375,-8.84375 8.28125,-8.53125 c -0.531643,-0.28806 -1.120466,-0.4375 -1.75,-0.4375 z m -2.59375,1.0625 c -0.903115,0.85572 -1.46875,2.14217 -1.46875,3.59375 l 0,28.625 c 0,1.17535 0.377499,2.24307 1,3.0625 l 1.1875,-1.125 8.84375,-8.59375 7.84375,-7.59375 -0.15625,-0.1875 -8.59375,-8.84375 -8.59375,-8.875 z m 57.1875,0.28125 -8.375,8.65625 -8.5625,8.84375 -0.15625,0.15625 8.15625,7.90625 8.84375,8.59375 0.53125,0.5 c 0.476164,-0.76402 0.75,-1.70518 0.75,-2.71875 l 0,-28.625 c 0,-1.29428 -0.448516,-2.46795 -1.1875,-3.3125 z m -38.78125,18.71875 -7.8125,7.59375 -8.875,8.59375 -1.125,1.09375 c 0.593096,0.38196 1.268042,0.625 2,0.625 l 51.71875,0 c 0.879957,0 1.678116,-0.33853 2.34375,-0.875 l -0.5625,-0.5625 -8.875,-8.59375 -8.15625,-7.875 -7.34375,7.5625 c -0.397465,0.2635 -0.663064,0.55576 -1.051168,0.73523 -0.624615,0.28885 -1.309163,0.53321 -1.997252,0.52267 -0.689922,-0.0106 -1.366428,-0.28061 -1.985577,-0.58517 -0.310792,-0.15288 -0.476438,-0.30481 -0.841003,-0.61023 z"/>
+        </g>
+      </g>
+    </svg>
+  </a>
+  <a href="./archive/" aria-label="archive" title="archive">
+    <svg viewBox="3.4 1.8 17.2 21.2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <ellipse cx="12" cy="5.6" rx="7.2" ry="2.1"/>
+      <path d="M4.8 5.6 L6.4 19.4 c0.12 1.05 2.5 1.9 5.6 1.9 s5.48-0.85 5.6-1.9 L19.2 5.6"/>
+      <path d="M9 8.5c-0.6-1.2 0.3-2.6 1.5-2.4M13 8.3c0.2-1.4 1.8-1.8 2.6-0.9M11 8.6c0.5-0.8 1.6-0.8 2 0" stroke-width="1.1" opacity="0.85"/>
+    </svg>
+  </a>
 </div>
 
 <script>
+/* center each dock glyph exactly: square viewBox around its measured bounds */
+document.querySelectorAll('#links svg').forEach(s => {
+  const b = s.getBBox();
+  const sw = parseFloat(s.getAttribute('stroke-width')) || 0;
+  const size = (Math.max(b.width, b.height) + sw) * 1.02;
+  const cx = b.x + b.width / 2, cy = b.y + b.height / 2;
+  s.setAttribute('viewBox', `${cx - size / 2} ${cy - size / 2} ${size} ${size}`);
+});
+
 const canvas = document.getElementById('gl');
 const gl = canvas.getContext('webgl2', { antialias: false, alpha: false });
 
