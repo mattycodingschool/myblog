@@ -84,6 +84,21 @@
     transition: opacity 0.6s ease;
     mix-blend-mode: color;
   }
+  #links a { position: relative; }
+  .copytip {
+    position: absolute; bottom: calc(100% + 14px); left: 50%;
+    transform: translateX(-50%) translateY(4px);
+    font-size: 12px; letter-spacing: 0.08em; white-space: nowrap;
+    color: rgba(255,255,255,0.92);
+    background: rgba(18,18,18,0.6);
+    backdrop-filter: blur(12px) saturate(150%);
+    -webkit-backdrop-filter: blur(12px) saturate(150%);
+    border: 1px solid rgba(255,255,255,0.22);
+    border-radius: 10px; padding: 5px 11px;
+    opacity: 0; transition: opacity 0.3s ease, transform 0.3s ease;
+    pointer-events: none;
+  }
+  .copytip.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   @media (max-width: 600px) {
     #links { gap: 4.6vw; padding: 3.2vw; border-radius: 7.6vw; }
     #links a { width: 14vw; height: 14vw; }
@@ -110,7 +125,7 @@
       <path d="M62,62 L51.315625,62 L51.315625,43.8021149 C51.315625,38.8127542 49.4197917,36.0245323 45.4707031,36.0245323 C41.1746094,36.0245323 38.9300781,38.9261103 38.9300781,43.8021149 L38.9300781,62 L28.6333333,62 L28.6333333,27.3333333 L38.9300781,27.3333333 L38.9300781,32.0029283 C38.9300781,32.0029283 42.0260417,26.2742151 49.3825521,26.2742151 C56.7356771,26.2742151 62,30.7644705 62,40.051212 L62,62 Z M16.349349,22.7940133 C12.8420573,22.7940133 10,19.9296567 10,16.3970067 C10,12.8643566 12.8420573,10 16.349349,10 C19.8566406,10 22.6970052,12.8643566 22.6970052,16.3970067 C22.6970052,19.9296567 19.8566406,22.7940133 16.349349,22.7940133 Z M11.0325521,62 L21.769401,62 L21.769401,27.3333333 L11.0325521,27.3333333 L11.0325521,62 Z"/>
     </svg>
   </a>
-  <a href="mailto:matty_berman@brown.edu" aria-label="email" title="email">
+  <a href="#" aria-label="email" title="email">
     <svg viewBox="83 141.5 460 350" fill="currentColor">
       <g transform="translate(0,-450.36218)">
         <g transform="matrix(6.6666666,0,0,6.6666666,-5.6668106,-5957.7191)">
@@ -169,6 +184,31 @@ document.querySelectorAll('#links a').forEach(a => {
   a.addEventListener('touchend', hide);
   a.addEventListener('touchcancel', hide);
 });
+
+/* email never appears in the HTML source; assembled here so scrapers parsing
+   markup don't find it. click copies; mailto only as clipboard fallback */
+{
+  const emailA = document.querySelector('#links a[aria-label="email"]');
+  const tip = document.createElement('span');
+  tip.className = 'copytip';
+  tip.textContent = 'copied';
+  emailA.appendChild(tip);
+  const addr = ['matty', 'berman'].join('_') + String.fromCharCode(64) + ['brown', 'edu'].join('.');
+  let tipTimer;
+  emailA.addEventListener('click', e => {
+    e.preventDefault();
+    const done = () => {
+      tip.classList.add('show');
+      clearTimeout(tipTimer);
+      tipTimer = setTimeout(() => tip.classList.remove('show'), 1400);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(addr).then(done, () => { location.href = 'mailto:' + addr; });
+    } else {
+      location.href = 'mailto:' + addr;
+    }
+  });
+}
 
 const canvas = document.getElementById('gl');
 const gl = canvas.getContext('webgl2', { antialias: false, alpha: false });
