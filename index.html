@@ -159,7 +159,7 @@ const tintLayers = [...document.querySelectorAll('.tintlayer')];
 let tintFront = 0, tintCurrent = null;
 const TINTS = {
   instagram: 'radial-gradient(circle at 28% 110%, #feda75 0%, #fa7e1e 28%, #d62976 58%, #962fbf 85%, #4f5bd5 100%)',
-  linkedin: 'linear-gradient(160deg, #003a75, #ffffff 55%, #00284f)',
+  linkedin: 'linear-gradient(160deg, #0a66c2, #4d94e8 44%, #dce9fb 52%, #0a4faf 61%, #063a8a)',
   email: 'linear-gradient(180deg, #40d4e8, #19c9fb 50%, #7fe8d8)',
   archive: 'linear-gradient(160deg, #9a9aa0, #6e6e74)',
 };
@@ -396,7 +396,7 @@ let hueBalls = SEED;        /* random palette rotation; both wheels shift togeth
 let hueMid = SEED + 0.5;    /* keeps the counter-rotating 0.5 offset */
 function ballCol(offset) { return hsv(hueBalls + offset, 0.85, 1.0); }
 function midCol(offset) { return hsv(hueMid + offset, 0.85, 1.0); }
-let rott = 0, rotFrom = 0, rotTo = 0, rotElapsed = 1e9, q27 = 6.5;
+let rott = Math.PI, rotFrom = Math.PI, rotTo = Math.PI, rotElapsed = 1e9, q27 = 6.5;
 let lastBeatPhase = 0;
 
 function frac(x) { return x - Math.floor(x); }
@@ -427,7 +427,7 @@ function music(t, dt, fps) {
   /* tile frequency (zoom) held constant — no per-beat zoom in/out */
   q27 = 6.5;
 
-  /* every 8 beats, half-turn the grid (square ↔ blurry, skipping the spiral stops).
+  /* every 8 beats, half-turn the grid (disco ↔ square, skipping the spiral stops).
      ease-out over 6 beats then hold still for the last 2, so each turn fully
      settles before the next begins */
   if (is_beat && index === 0) { rotFrom = rotTo; rotTo += Math.PI; rotElapsed = 0; }
