@@ -130,22 +130,19 @@ const roomPresets = window.ROOM_PRESETS;
   [second.baseVals, second.presetParts.baseVals].forEach(v => {
     v.modwavealphabyvolume = 0;
   });
-  /* phones fall back to 8-bit feedback textures, where this preset's tiny
-     decay (0.00014 < 1/255) rounds to zero — its per-frame noise then random-
-     walks to saturation and the image collapses into blocks within a second.
-     raise the decay above one 8-bit step and halve the noise to compensate */
+  /* on mobile GPUs this preset's warp feedback (re-sampling itself displaced
+     by (image - blur*5)*3) self-amplifies into blocks within a second; zero
+     the displacement and raise decay above one 8-bit step so the feedback is
+     a pure contraction that cannot blow up. desktop keeps the original */
   if (IS_MOBILE) {
-    /* also tame the self-amplifying displacement: every frame the preset
-       re-samples itself offset by (image - blur*5) * 3, so precision error
-       compounds until the image collapses into blocks */
     second.warp = second.warp
       .replace('ret_1 = (ret_1 - 0.00014);', 'ret_1 = (ret_1 - 0.02);')
       .replace('* 0.013)', '* 0.002)')
-      .replace('* 3.0)', '* 0.8)');
+      .replace('* 3.0)', '* 0.0)');
     second.presetParts.warp = second.presetParts.warp
       .replace('ret -= 0.00014;', 'ret -= 0.02;')
       .replace('float t = 0.013;', 'float t = 0.002;')
-      .replace('texsize.zw*3;', 'texsize.zw*0.8;');
+      .replace('texsize.zw*3;', 'texsize.zw*0.0;');
   }
 
   const third = roomPresets[2];
