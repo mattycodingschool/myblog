@@ -219,17 +219,26 @@ function ensureBc() {
   })();
   return bcReady;
 }
-/* phones run the sim on a square buffer center-cropped by the canvas
-   (object-fit: cover); desktop keeps the native aspect */
-function sizeBcCanvas() {
+/* phones run room 1's sim on a square buffer center-cropped by the canvas
+   (object-fit: cover); the other rooms — and desktop — keep the native
+   aspect, since the square costs ~2x the pixels */
+function sizeBcCanvas(room) {
   const w = bcCanvas.clientWidth, h = bcCanvas.clientHeight;
+  const square = IS_MOBILE && room === 1;
   const S = Math.max(w, h);
-  bcCanvas.width = (IS_MOBILE ? S : w) * RENDER_DPR;
-  bcCanvas.height = (IS_MOBILE ? S : h) * RENDER_DPR;
+  bcCanvas.width = (square ? S : w) * RENDER_DPR;
+  bcCanvas.height = (square ? S : h) * RENDER_DPR;
+}
+function fitBufferTo(room) {
+  const w = bcCanvas.width, h = bcCanvas.height;
+  sizeBcCanvas(room);
+  if (bcViz && (bcCanvas.width !== w || bcCanvas.height !== h)) {
+    bcViz.setRendererSize(bcCanvas.width, bcCanvas.height);
+  }
 }
 addEventListener('resize', () => {
   if (!bcViz) return;
-  sizeBcCanvas();
+  sizeBcCanvas(shownRoom);
   bcViz.setRendererSize(bcCanvas.width, bcCanvas.height);
 });
 
@@ -238,6 +247,7 @@ let pos = 0, goal = 0, shownRoom = -1;
 const slideW = () => Math.max(innerWidth * 0.92, 420);
 function meltTo(i) {
   if (!bcViz || i === shownRoom) return;
+  fitBufferTo(i);
   bcViz.loadPreset(roomPresets[i], shownRoom < 0 ? 0 : 2.7);
   bcCanvas.classList.remove('room-0', 'room-1', 'room-2');
   bcCanvas.classList.add(`room-${i}`);
@@ -293,6 +303,7 @@ function openInfo() {
       bcTap.gain.linearRampToValueAtTime(1, t + 2.4);
     }
     if (shownRoom !== 0) {
+      fitBufferTo(0);
       bcViz.loadPreset(roomPresets[0], 0);
       shownRoom = 0;
     }
@@ -325,6 +336,7 @@ function closeInfo() {
     bcViz.loadPreset(room3ExitPreset, 2.5);
     shownRoom = -1;
   } else if (bcViz && shownRoom !== 0) {
+    fitBufferTo(0);
     bcViz.loadPreset(roomPresets[0], 1.8);
     shownRoom = 0;
   }
