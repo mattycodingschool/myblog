@@ -130,14 +130,6 @@ const roomPresets = window.ROOM_PRESETS;
   [second.baseVals, second.presetParts.baseVals].forEach(v => {
     v.modwavealphabyvolume = 0;
   });
-  /* on mobile GPUs this preset's original warp (re-sampling itself displaced
-     by (image - blur*5)*3 plus noise) self-amplifies into blocks within a
-     second; swap the whole pass for a plain sample-and-fade, which cannot
-     accumulate anything. desktop keeps the original */
-  if (IS_MOBILE) {
-    second.warp = ' shader_body { \n  ret = (texture (sampler_main, uv).xyz - 0.008);\n }';
-    second.presetParts.warp = 'shader_body {\n    ret = tex2d(sampler_main, uv).xyz - 0.008;\n}';
-  }
 
   const third = roomPresets[2];
   [third.baseVals, third.presetParts.baseVals].forEach(v => {
@@ -252,14 +244,9 @@ function ensureBc() {
   })();
   return bcReady;
 }
-/* phones run the sim on a square buffer center-cropped by the canvas
-   (object-fit: cover), the same way the home pattern stays square anywhere;
-   desktop keeps the native aspect */
 function sizeBcCanvas() {
-  const w = bcCanvas.clientWidth, h = bcCanvas.clientHeight;
-  const S = Math.max(w, h);
-  bcCanvas.width = (IS_MOBILE ? S : w) * RENDER_DPR;
-  bcCanvas.height = (IS_MOBILE ? S : h) * RENDER_DPR;
+  bcCanvas.width = bcCanvas.clientWidth * RENDER_DPR;
+  bcCanvas.height = bcCanvas.clientHeight * RENDER_DPR;
 }
 addEventListener('resize', () => {
   if (!bcViz) return;
