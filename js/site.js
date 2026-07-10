@@ -734,10 +734,14 @@ function frame(now) {
   calm += (calmT - calm) * Math.min(1, dt * 2.5);
   if (infoOpen || calm > 0.01) updateScreens(dt);
   if (bcActive && bcViz) bcViz.render();
-  else if (bcViz && bcPrimeFrames < 90) {
+  else if (bcViz && bcPrimeFrames < 20) {
     bcViz.render();
     bcPrimeFrames++;
   }
+  /* the back room canvas is opaque once fully open: skip the entire home
+     sim below while it's covered, so only one full-screen sim ever runs.
+     it resumes the moment closeInfo flips infoOpen off, under the fade */
+  if (infoOpen && !transBusy) return;
   hueBalls -= dt * 0.05 * (1 - 0.7 * calm); /* reverse: red→purple→blue→green→yellow */
   hueMid += dt * 0.05 * (1 - 0.7 * calm);   /* blue→purple→red→yellow→green */
 
