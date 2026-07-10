@@ -229,9 +229,7 @@ function ensureBc() {
   bcReady = (async () => {
     bcActx = new (window.AudioContext || window.webkitAudioContext)();
     const BC = window.butterchurn.default || window.butterchurn;
-    const dpr = RENDER_DPR;
-    bcCanvas.width = bcCanvas.clientWidth * dpr;
-    bcCanvas.height = bcCanvas.clientHeight * dpr;
+    sizeBcCanvas();
     bcViz = BC.createVisualizer(bcActx, bcCanvas, {
       width: bcCanvas.width, height: bcCanvas.height,
       pixelRatio: 1,
@@ -255,11 +253,18 @@ function ensureBc() {
   })();
   return bcReady;
 }
+/* phones run the sim on a square buffer center-cropped by the canvas
+   (object-fit: cover), the same way the home pattern stays square anywhere;
+   desktop keeps the native aspect */
+function sizeBcCanvas() {
+  const w = bcCanvas.clientWidth, h = bcCanvas.clientHeight;
+  const S = Math.max(w, h);
+  bcCanvas.width = (IS_MOBILE ? S : w) * RENDER_DPR;
+  bcCanvas.height = (IS_MOBILE ? S : h) * RENDER_DPR;
+}
 addEventListener('resize', () => {
   if (!bcViz) return;
-  const dpr = RENDER_DPR;
-  bcCanvas.width = bcCanvas.clientWidth * dpr;
-  bcCanvas.height = bcCanvas.clientHeight * dpr;
+  sizeBcCanvas();
   bcViz.setRendererSize(bcCanvas.width, bcCanvas.height);
 });
 
