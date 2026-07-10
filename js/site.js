@@ -150,13 +150,20 @@ const roomPresets = window.ROOM_PRESETS;
        re-samples itself offset by (image - blur*5) * 3, so precision error
        compounds until the image collapses into blocks */
     second.warp = second.warp
-      .replace('ret_1 = (ret_1 - 0.00014);', 'ret_1 = (ret_1 - 0.01);')
-      .replace('* 0.013)', '* 0.003)')
-      .replace('* 3.0)', '* 1.2)');
+      .replace('ret_1 = (ret_1 - 0.00014);', 'ret_1 = (ret_1 - 0.02);')
+      .replace('* 0.013)', '* 0.002)')
+      .replace('* 3.0)', '* 0.8)');
+    second.presetParts.warp = second.presetParts.warp
+      .replace('ret -= 0.00014;', 'ret -= 0.02;')
+      .replace('float t = 0.013;', 'float t = 0.002;')
+      .replace('texsize.zw*3;', 'texsize.zw*0.8;');
     DBG.patch = [
-      second.warp.includes('- 0.01)'),
-      second.warp.includes('* 0.003)'),
-      second.warp.includes('* 1.2)'),
+      second.warp.includes('- 0.02)'),
+      second.warp.includes('* 0.002)'),
+      second.warp.includes('* 0.8)'),
+      second.presetParts.warp.includes('-= 0.02'),
+      second.presetParts.warp.includes('t = 0.002'),
+      second.presetParts.warp.includes('zw*0.8'),
     ].map(Number).join('');
   }
 
