@@ -106,31 +106,6 @@ const roomPresets = window.ROOM_PRESETS;
     .replace('q12=.4+cos(atime*.00613828348)*.4;', `q12=.4+cos(atime*.00613828348+${firstPhase})*.4;`)
     .replace('q13=.4+sin(atime*.00598593455)*.4;', `q13=.4+sin(atime*.00598593455+${firstPhase})*.4;`);
 
-  const secondPhase = (Math.random() * Math.PI * 2).toFixed(6);
-  const second = roomPresets[1];
-  second.frame_eqs_str = second.frame_eqs_str
-    .replace("a['t']=(a['time']*12.3);", `a['t']=((a['time']*12.3)+${secondPhase});`);
-  second.presetParts.perFrame = second.presetParts.perFrame
-    .replace('t = time*12.3;', `t = time*12.3+${secondPhase};`);
-  const sharpenRipples = shader => shader
-    .replace('* 1.25', '* 0.75')
-    .replace('*1.25', '*0.75')
-    .replace('ret *= 0.5', 'ret *= 0.28')
-    .replace('tmpvar_2.xyz, vec3(1.8, 1.8, 1.8)) * 0.5', 'tmpvar_2.xyz, vec3(1.8, 1.8, 1.8)) * 0.28')
-    .replace('ret, 1.8)', 'ret, 2.4)')
-    .replace('vec3(1.8, 1.8, 1.8)', 'vec3(2.4, 2.4, 2.4)')
-    .replace(/\* 5\.4/g, '* 8.6')
-    .replace(/\*5\.40/g, '*8.60')
-    .replace('vec3(5.4, 3.78, 1.62)', 'vec3(8.6, 6.02, 2.58)')
-    .replace('vec3(1.08, 2.7, 3.78)', 'vec3(1.72, 4.3, 6.02)')
-    .replace('ret *= 1.6', 'ret *= 1.75')
-    .replace('ret_1 = (ret_1 * 1.6)', 'ret_1 = (ret_1 * 1.75)');
-  second.comp = sharpenRipples(second.comp);
-  second.presetParts.comp = sharpenRipples(second.presetParts.comp);
-  [second.baseVals, second.presetParts.baseVals].forEach(v => {
-    v.modwavealphabyvolume = 0;
-  });
-
   const third = roomPresets[2];
   [third.baseVals, third.presetParts.baseVals].forEach(v => {
     v.warpanimspeed = 0.2;
@@ -244,9 +219,13 @@ function ensureBc() {
   })();
   return bcReady;
 }
+/* phones run the sim on a square buffer center-cropped by the canvas
+   (object-fit: cover); desktop keeps the native aspect */
 function sizeBcCanvas() {
-  bcCanvas.width = bcCanvas.clientWidth * RENDER_DPR;
-  bcCanvas.height = bcCanvas.clientHeight * RENDER_DPR;
+  const w = bcCanvas.clientWidth, h = bcCanvas.clientHeight;
+  const S = Math.max(w, h);
+  bcCanvas.width = (IS_MOBILE ? S : w) * RENDER_DPR;
+  bcCanvas.height = (IS_MOBILE ? S : h) * RENDER_DPR;
 }
 addEventListener('resize', () => {
   if (!bcViz) return;
