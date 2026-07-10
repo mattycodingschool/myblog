@@ -135,9 +135,13 @@ const roomPresets = window.ROOM_PRESETS;
      walks to saturation and the image collapses into blocks within a second.
      raise the decay above one 8-bit step and halve the noise to compensate */
   if (IS_MOBILE) {
+    /* also tame the self-amplifying displacement: every frame the preset
+       re-samples itself offset by (image - blur*5) * 3, so precision error
+       compounds until the image collapses into blocks */
     second.warp = second.warp
-      .replace('ret_1 = (ret_1 - 0.00014);', 'ret_1 = (ret_1 - 0.006);')
-      .replace('* 0.013)', '* 0.006)');
+      .replace('ret_1 = (ret_1 - 0.00014);', 'ret_1 = (ret_1 - 0.01);')
+      .replace('* 0.013)', '* 0.003)')
+      .replace('* 3.0)', '* 1.2)');
   }
 
   const third = roomPresets[2];
