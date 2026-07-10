@@ -14,6 +14,17 @@ document.querySelectorAll('#links svg').forEach(s => {
 const IS_MOBILE = matchMedia('(pointer: coarse)').matches;
 const RENDER_DPR = IS_MOBILE ? 1 : Math.min(devicePixelRatio, 2);
 
+/* TEMP DEBUG (mobile only): record every texture format butterchurn allocates,
+   so the on-screen overlay can show whether the phone fell back to 8-bit */
+const DBG = { tex: {}, patch: null, lost: false };
+if (IS_MOBILE && window.WebGL2RenderingContext) {
+  const orig = WebGL2RenderingContext.prototype.texImage2D;
+  WebGL2RenderingContext.prototype.texImage2D = function (...args) {
+    DBG.tex[args[2]] = (DBG.tex[args[2]] || 0) + 1;
+    return orig.apply(this, args);
+  };
+}
+
 const tintLayers = [...document.querySelectorAll('.tintlayer')];
 let tintFront = 0, tintCurrent = null;
 const TINTS = {
@@ -142,6 +153,11 @@ const roomPresets = window.ROOM_PRESETS;
       .replace('ret_1 = (ret_1 - 0.00014);', 'ret_1 = (ret_1 - 0.01);')
       .replace('* 0.013)', '* 0.003)')
       .replace('* 3.0)', '* 1.2)');
+    DBG.patch = [
+      second.warp.includes('- 0.01)'),
+      second.warp.includes('* 0.003)'),
+      second.warp.includes('* 1.2)'),
+    ].map(Number).join('');
   }
 
   const third = roomPresets[2];
@@ -288,6 +304,30 @@ function meltTo(i) {
    AudioContext starts suspended (browsers log a benign console note) and is
    resumed by the info click; the groove never reaches the speakers. */
 ensureBc().catch(() => {});
+/* TEMP DEBUG overlay (mobile only): screenshot this on slide 2 */
+if (IS_MOBILE) {
+  const dbgEl = document.createElement('div');
+  dbgEl.style.cssText = 'position:fixed;left:8px;top:8px;z-index:999;pointer-events:none;' +
+    'color:#0f0;background:rgba(0,0,0,0.72);font:11px/1.5 monospace;padding:8px;white-space:pre;border-radius:6px;';
+  document.body.appendChild(dbgEl);
+  bcCanvas.addEventListener('webglcontextlost', () => { DBG.lost = true; });
+  const FMT = { 6408: 'RGBA', 32856: 'RGBA8', 34842: 'RGBA16F', 34836: 'RGBA32F', 33321: 'R8', 33325: 'R16F', 33326: 'R32F' };
+  setInterval(() => {
+    const gl = bcCanvas.getContext('webgl2');
+    if (!gl) { dbgEl.textContent = 'no webgl2 context'; return; }
+    const ri = gl.getExtension('WEBGL_debug_renderer_info');
+    dbgEl.textContent = [
+      'gpu: ' + (ri ? gl.getParameter(ri.UNMASKED_RENDERER_WEBGL) : '?'),
+      'float rt: ' + !!gl.getExtension('EXT_color_buffer_float') +
+        '  half: ' + !!gl.getExtension('EXT_color_buffer_half_float'),
+      'lin f: ' + !!gl.getExtension('OES_texture_float_linear') +
+        '  lin hf: ' + !!gl.getExtension('OES_texture_half_float_linear'),
+      'buf: ' + bcCanvas.width + 'x' + bcCanvas.height + '  maxtex: ' + gl.getParameter(gl.MAX_TEXTURE_SIZE),
+      'tex: ' + Object.entries(DBG.tex).map(([f, n]) => (FMT[f] || f) + 'x' + n).join(' '),
+      'patch: ' + DBG.patch + '  lost: ' + DBG.lost + '  room: ' + shownRoom,
+    ].join('\n');
+  }, 1000);
+}
 /* debounced melt: hopping quickly through a slide melts straight to the one
    you land on, instead of stacking two preset loads mid-animation */
 let meltQueued = -1, meltTimer = null;
