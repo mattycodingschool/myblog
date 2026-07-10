@@ -130,6 +130,15 @@ const roomPresets = window.ROOM_PRESETS;
   [second.baseVals, second.presetParts.baseVals].forEach(v => {
     v.modwavealphabyvolume = 0;
   });
+  /* phones fall back to 8-bit feedback textures, where this preset's tiny
+     decay (0.00014 < 1/255) rounds to zero — its per-frame noise then random-
+     walks to saturation and the image collapses into blocks within a second.
+     raise the decay above one 8-bit step and halve the noise to compensate */
+  if (IS_MOBILE) {
+    second.warp = second.warp
+      .replace('ret_1 = (ret_1 - 0.00014);', 'ret_1 = (ret_1 - 0.006);')
+      .replace('* 0.013)', '* 0.006)');
+  }
 
   const third = roomPresets[2];
   [third.baseVals, third.presetParts.baseVals].forEach(v => {
@@ -235,6 +244,12 @@ function ensureBc() {
     src.connect(bcTap);
     bcViz.connectAudio(bcTap);
     src.start();
+    /* warm every preset once during setup so mid-melt loadPreset calls hit
+       the driver's shader cache instead of compiling at the click */
+    const warm = p => { bcViz.loadPreset(p, 0); return new Promise(r => setTimeout(r, 120)); };
+    await warm(roomPresets[1]);
+    await warm(roomPresets[2]);
+    await warm(room3ExitPreset);
     bcViz.loadPreset(roomPresets[0], 0);
     shownRoom = 0;
   })();
