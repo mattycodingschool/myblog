@@ -130,19 +130,13 @@ const roomPresets = window.ROOM_PRESETS;
   [second.baseVals, second.presetParts.baseVals].forEach(v => {
     v.modwavealphabyvolume = 0;
   });
-  /* on mobile GPUs this preset's warp feedback (re-sampling itself displaced
-     by (image - blur*5)*3) self-amplifies into blocks within a second; zero
-     the displacement and raise decay above one 8-bit step so the feedback is
-     a pure contraction that cannot blow up. desktop keeps the original */
+  /* on mobile GPUs this preset's original warp (re-sampling itself displaced
+     by (image - blur*5)*3 plus noise) self-amplifies into blocks within a
+     second; swap the whole pass for a plain sample-and-fade, which cannot
+     accumulate anything. desktop keeps the original */
   if (IS_MOBILE) {
-    second.warp = second.warp
-      .replace('ret_1 = (ret_1 - 0.00014);', 'ret_1 = (ret_1 - 0.02);')
-      .replace('* 0.013)', '* 0.002)')
-      .replace('* 3.0)', '* 0.0)');
-    second.presetParts.warp = second.presetParts.warp
-      .replace('ret -= 0.00014;', 'ret -= 0.02;')
-      .replace('float t = 0.013;', 'float t = 0.002;')
-      .replace('texsize.zw*3;', 'texsize.zw*0.0;');
+    second.warp = ' shader_body { \n  ret = (texture (sampler_main, uv).xyz - 0.008);\n }';
+    second.presetParts.warp = 'shader_body {\n    ret = tex2d(sampler_main, uv).xyz - 0.008;\n}';
   }
 
   const third = roomPresets[2];
