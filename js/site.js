@@ -9,13 +9,18 @@ document.querySelectorAll('#links svg').forEach(s => {
 
 /* hovering a dock tile washes the visuals in that brand's color;
    two stacked layers crossfade so tile-to-tile hops blend smoothly */
+/* phones: render at 1x — 2x device pixels on a mobile GPU is what makes the
+   whole site (home pattern and butterchurn both) drop frames */
+const IS_MOBILE = matchMedia('(pointer: coarse)').matches;
+const RENDER_DPR = IS_MOBILE ? 1 : Math.min(devicePixelRatio, 2);
+
 const tintLayers = [...document.querySelectorAll('.tintlayer')];
 let tintFront = 0, tintCurrent = null;
 const TINTS = {
   instagram: 'radial-gradient(circle at 28% 110%, #feda75 0%, #fa7e1e 28%, #d62976 58%, #962fbf 85%, #4f5bd5 100%)',
   linkedin: 'linear-gradient(160deg, #0a66c2, #4d94e8 44%, #dce9fb 52%, #0a4faf 61%, #063a8a)',
   email: 'linear-gradient(180deg, #40d4e8, #19c9fb 50%, #7fe8d8)',
-  info: 'radial-gradient(circle at 50% 50%, #d62930 0%, #e8722f 16%, #e8c53f 30%, #3fbf6f 45%, #2f9fd6 60%, #5a4fd5 78%, #8b2fbf 100%)',
+  info: 'linear-gradient(160deg, #f6d77b, #eda63b 42%, #fdeec2 52%, #b97a1e 64%, #8a5a12)',
 };
 document.querySelectorAll('#links a').forEach(a => {
   const g = TINTS[a.getAttribute('aria-label')];
@@ -215,7 +220,7 @@ function ensureBc() {
   bcReady = (async () => {
     bcActx = new (window.AudioContext || window.webkitAudioContext)();
     const BC = window.butterchurn.default || window.butterchurn;
-    const dpr = Math.min(devicePixelRatio, 2);
+    const dpr = RENDER_DPR;
     bcCanvas.width = bcCanvas.clientWidth * dpr;
     bcCanvas.height = bcCanvas.clientHeight * dpr;
     bcViz = BC.createVisualizer(bcActx, bcCanvas, {
@@ -237,7 +242,7 @@ function ensureBc() {
 }
 addEventListener('resize', () => {
   if (!bcViz) return;
-  const dpr = Math.min(devicePixelRatio, 2);
+  const dpr = RENDER_DPR;
   bcCanvas.width = bcCanvas.clientWidth * dpr;
   bcCanvas.height = bcCanvas.clientHeight * dpr;
   bcViz.setRendererSize(bcCanvas.width, bcCanvas.height);
@@ -695,8 +700,8 @@ addEventListener('pointermove', e => {
 });
 
 function resize() {
-  canvas.width = innerWidth * Math.min(devicePixelRatio, 2);
-  canvas.height = innerHeight * Math.min(devicePixelRatio, 2);
+  canvas.width = innerWidth * RENDER_DPR;
+  canvas.height = innerHeight * RENDER_DPR;
 }
 resize();
 addEventListener('resize', resize);
