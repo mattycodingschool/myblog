@@ -13,6 +13,16 @@ document.querySelectorAll('#links svg').forEach(s => {
    whole site (home pattern and butterchurn both) drop frames */
 const IS_MOBILE = matchMedia('(pointer: coarse)').matches;
 const RENDER_DPR = IS_MOBILE ? 1 : Math.min(devicePixelRatio, 2);
+/* the bc canvas runs 2x everywhere: the tile pattern's scale rides texsize,
+   so a 1x phone buffer reads as a different, mushier preset */
+const BC_DPR = Math.min(devicePixelRatio, 2);
+const MELT_ROOM = 2.7;
+const MELT_OPEN = 2.2;
+
+/* main-page test: butterchurn renders the real "reflections on black tiles"
+   preset on the home page; the hand-rolled sim (and its cursor pull + dock
+   color wash) is parked, not deleted — flip this off to restore it */
+const HOME_BC = true;
 
 const tintLayers = [...document.querySelectorAll('.tintlayer')];
 let tintFront = 0, tintCurrent = null;
@@ -82,6 +92,17 @@ let transBusy = false;
 
 const bcCanvas = document.getElementById('bc');
 const roomPresets = window.ROOM_PRESETS;
+const homePreset = window.HOME_PRESET;
+/* the preset's eqs can't see the pointer, so the smoothed cursor is handed in
+   through q30/q31 each frame — the comp shader pulls the center toward it */
+homePreset.frame_eqs_str += " a['q30']=(window.__bcCurX==null?0.5:window.__bcCurX); a['q31']=(window.__bcCurY==null?0.5:window.__bcCurY); a['q27']=(window.__bcQ27==null?2:window.__bcQ27); a['q29']=(window.__bcGlow==null?1:window.__bcGlow); a['q25']=(window.__bcSize==null?1:window.__bcSize); a['q17']=(window.__bcBall==null?1:window.__bcBall);";
+window.__bcGlow = 0.75;
+/* element size rides the buffer height, so everything reads larger on a tall
+   narrow phone: the center wave shrinks harder than the balls */
+window.__bcSize = IS_MOBILE ? 0.6 : 1;
+window.__bcBall = IS_MOBILE ? 0.75 : 1;
+/* phones render the bc canvas at 1x; the tile scale rides texsize, so double
+   q27 there to keep the pattern the same size as the 2x desktop buffer */
 
 /* Tune the three info-room presets.
    The preset archive stores both compiled equations and their editable source,
@@ -134,22 +155,6 @@ const roomPresets = window.ROOM_PRESETS;
     .replace('tan(time*2)', 'tan(time*.45)');
 }
 
-/* Exit through a fading, drifting version of slide 3 itself. This preserves
-   the preset-melt texture without briefly exposing slide 1 on the way home. */
-const room3ExitPreset = JSON.parse(JSON.stringify(roomPresets[2]));
-[room3ExitPreset.baseVals, room3ExitPreset.presetParts.baseVals].forEach(v => {
-  v.decay = 0.94;
-  v.zoom = 1.018;
-  v.echo_zoom = 1.025;
-  v.warp = 0.08;
-  v.warpanimspeed = 0.32;
-  v.wave_a = 0.0002;
-});
-room3ExitPreset.shapes[2].init_eqs_str += " a['exit_grow']=0; a['exit_center']=0;";
-room3ExitPreset.shapes[2].frame_eqs_str += " a['exit_grow']=Math.min(1,(a['exit_grow']+(1/(Math.max(a['fps'],1)*1.5)))); a['exit_center']=Math.min(1,(a['exit_center']+(1/(Math.max(a['fps'],1)*4)))); a['rad']=(((1-a['exit_grow'])*a['rad'])+a['exit_grow']); a['x']=(((1-a['exit_center'])*a['x'])+(a['exit_center']*0.5)); a['y']=(((1-a['exit_center'])*a['y'])+(a['exit_center']*0.5));";
-room3ExitPreset.presetParts.shapes[2].init_eqs_str += '\nexit_grow=0; exit_center=0;';
-room3ExitPreset.presetParts.shapes[2].frame_eqs_str += '\nexit_grow=min(1,exit_grow+1/max(fps,1)/1.5);\nexit_center=min(1,exit_center+1/max(fps,1)/4);\nrad=(1-exit_grow)*rad+exit_grow;\nx=(1-exit_center)*x+exit_center*.5;\ny=(1-exit_center)*y+exit_center*.5;';
-
 /* silent fake groove: rendered once offline, looped into butterchurn's
    analyser — never routed to the speakers */
 function makeGroove() {
@@ -189,7 +194,7 @@ function makeGroove() {
 }
 
 let bcViz = null, bcActx = null, bcTap = null, bcActive = false, bcReady = null;
-let bcPrimeFrames = 0;
+let bcGrooveBuf = null;
 function ensureBc() {
   if (bcReady) return bcReady;
   bcReady = (async () => {
@@ -200,7 +205,21 @@ function ensureBc() {
       width: bcCanvas.width, height: bcCanvas.height,
       pixelRatio: 1,
     });
+    /* compile every room preset on THIS context while the canvas is still
+       invisible — mobile Safari won't share shader caches across contexts,
+       so warming anywhere else leaves the full compile stall on the click */
+    for (const p of roomPresets) { bcViz.loadPreset(p, 0); bcViz.render(); }
+    /* the first BLENDED load builds the blend pass on top of the presets —
+       run one throwaway blend now so the info click doesn't pay for it */
+    bcViz.loadPreset(homePreset, 0);
+    bcViz.render();
+    bcViz.loadPreset(roomPresets[0], MELT_OPEN);
+    bcViz.render();
+    bcViz.loadPreset(homePreset, 0);
+    shownRoom = -1;
+    bcCanvas.classList.add('on');
     const buf = await makeGroove();
+    bcGrooveBuf = buf;
     const src = bcActx.createBufferSource();
     src.buffer = buf; src.loop = true;
     bcTap = bcActx.createGain();
@@ -208,26 +227,17 @@ function ensureBc() {
     src.connect(bcTap);
     bcViz.connectAudio(bcTap);
     src.start();
-    /* warm every preset once during setup so mid-melt loadPreset calls hit
-       the driver's shader cache instead of compiling at the click */
-    const warm = p => { bcViz.loadPreset(p, 0); return new Promise(r => setTimeout(r, 120)); };
-    await warm(roomPresets[1]);
-    await warm(roomPresets[2]);
-    await warm(room3ExitPreset);
-    bcViz.loadPreset(roomPresets[0], 0);
-    shownRoom = 0;
   })();
   return bcReady;
 }
-/* phones run room 1's sim on a square buffer center-cropped by the canvas
-   (object-fit: cover); the other rooms — and desktop — keep the native
-   aspect, since the square costs ~2x the pixels */
+/* every page — home and all three rooms — renders on the same native-aspect
+   2x buffer, so switching rooms never resizes (no mid-transition quality pop) */
 function sizeBcCanvas(room) {
-  const w = bcCanvas.clientWidth, h = bcCanvas.clientHeight;
-  const square = IS_MOBILE && room === 1;
-  const S = Math.max(w, h);
-  bcCanvas.width = (square ? S : w) * RENDER_DPR;
-  bcCanvas.height = (square ? S : h) * RENDER_DPR;
+  bcCanvas.width = bcCanvas.clientWidth * BC_DPR;
+  bcCanvas.height = bcCanvas.clientHeight * BC_DPR;
+  /* tile frequency rides texsize, so narrow buffers show far fewer squares;
+     scale q27 up as the buffer shrinks (desktop-width buffers stay at 2) */
+  window.__bcQ27 = 2 * Math.max(1, Math.min(2.4, 2600 / bcCanvas.width));
 }
 function fitBufferTo(room) {
   const w = bcCanvas.width, h = bcCanvas.height;
@@ -248,9 +258,10 @@ const slideW = () => Math.max(innerWidth * 0.92, 420);
 function meltTo(i) {
   if (!bcViz || i === shownRoom) return;
   fitBufferTo(i);
-  bcViz.loadPreset(roomPresets[i], shownRoom < 0 ? 0 : 2.7);
+  bcViz.loadPreset(roomPresets[i], shownRoom < 0 ? 0 : MELT_ROOM);
   bcCanvas.classList.remove('room-0', 'room-1', 'room-2');
   bcCanvas.classList.add(`room-${i}`);
+  if (i !== 2) creditsListEl.classList.remove('show');
   shownRoom = i;
 }
 
@@ -259,6 +270,30 @@ function meltTo(i) {
    AudioContext starts suspended (browsers log a benign console note) and is
    resumed by the info click; the groove never reaches the speakers. */
 ensureBc().catch(() => {});
+/* autoplay policy keeps the groove's context suspended until a gesture; the
+   preset feeds on beats, so wake it at the first touch anywhere */
+const wakeAudio = () => { if (bcActx) bcActx.resume(); };
+/* until that gesture, hand-feed the same offline-rendered groove into the
+   visualizer frame by frame — the preset dances from first paint, and the
+   real analyser takes over seamlessly once the context runs */
+const fakeM = new Uint8Array(1024), fakeL = new Uint8Array(1024), fakeR = new Uint8Array(1024);
+let grooveT0 = -1;
+function grooveSlice(now) {
+  if (grooveT0 < 0) grooveT0 = now;
+  const sr = bcGrooveBuf.sampleRate, n = bcGrooveBuf.length;
+  const L = bcGrooveBuf.getChannelData(0), R = bcGrooveBuf.getChannelData(1);
+  const byte = v => 128 + Math.max(-1, Math.min(1, v * 0.12)) * 127;
+  let p = Math.floor((now - grooveT0) / 1000 * sr) % n;
+  for (let i = 0; i < 1024; i++) {
+    fakeL[i] = byte(L[p]);
+    fakeR[i] = byte(R[p]);
+    fakeM[i] = byte((L[p] + R[p]) / 2);
+    p = (p + 1) % n;
+  }
+  return { timeByteArray: fakeM, timeByteArrayL: fakeL, timeByteArrayR: fakeR };
+}
+addEventListener('pointerdown', wakeAudio, { once: true });
+addEventListener('keydown', wakeAudio, { once: true });
 /* debounced melt: hopping quickly through a slide melts straight to the one
    you land on, instead of stacking two preset loads mid-animation */
 let meltQueued = -1, meltTimer = null;
@@ -292,10 +327,8 @@ function openInfo() {
   if (transBusy || infoOpen) return;
   transBusy = true;
   document.body.classList.add('info-open');
-  startHomeDive(1100);
   if (bcActx) bcActx.resume();
   ensureBc().then(() => {
-    bcActx.resume();
     if (bcTap) {
       const t = bcActx.currentTime;
       bcTap.gain.cancelScheduledValues(t);
@@ -304,16 +337,17 @@ function openInfo() {
     }
     if (shownRoom !== 0) {
       fitBufferTo(0);
-      bcViz.loadPreset(roomPresets[0], 0);
+      bcViz.loadPreset(roomPresets[0], MELT_OPEN);
       shownRoom = 0;
     }
     bcCanvas.classList.remove('room-1', 'room-2');
     bcCanvas.classList.add('room-0');
     bcActive = true;
-    bcCanvas.classList.remove('closing');
-    bcCanvas.classList.add('on', 'entering');
-    setTimeout(() => bcCanvas.classList.remove('entering'), 1150);
     setTimeout(() => {
+      /* the tint rides the dive, but the canvas now paints under it, so it
+         must clear once the room is up or it washes the rooms gold */
+      tintLayers.forEach(l => l.style.opacity = '0');
+      tintCurrent = null;
       pos = 0; goal = 0;
       infoOpen = true;
       calmT = 1;
@@ -326,45 +360,40 @@ function openInfo() {
 function closeInfo() {
   if (transBusy || !infoOpen) return;
   transBusy = true;
-  const returningFromLast = shownRoom === LAST;
   infoOpen = false;
   calmT = 0;
   infoEl.classList.remove('open');
   infoEl.setAttribute('aria-hidden', 'true');
+  creditsListEl.classList.remove('show');
   panels.forEach(p => p.style.pointerEvents = 'none');
-  if (bcViz && returningFromLast) {
-    bcViz.loadPreset(room3ExitPreset, 2.5);
+  if (bcViz) {
+    fitBufferTo(-1);
+    bcViz.loadPreset(homePreset, MELT_ROOM);
     shownRoom = -1;
-  } else if (bcViz && shownRoom !== 0) {
-    fitBufferTo(0);
-    bcViz.loadPreset(roomPresets[0], 1.8);
-    shownRoom = 0;
   }
-  const beginCanvasFade = () => {
-    if (returningFromLast) bcCanvas.classList.add('quick-return');
-    bcCanvas.classList.add('closing');
-    bcCanvas.classList.remove('on');
-  };
-  if (returningFromLast) setTimeout(beginCanvasFade, 1500);
-  else beginCanvasFade();
-  /* the dock and title only fade back in once the dissolve has finished */
+  bcCanvas.classList.remove('room-0', 'room-1', 'room-2');
+  /* the dock and title only fade back in once the melt has settled */
   setTimeout(() => {
     bcActive = false;
-    bcCanvas.classList.remove('closing', 'quick-return');
     if (bcTap) {
-      bcTap.gain.cancelScheduledValues(bcActx.currentTime);
-      bcTap.gain.value = 0.12;
+      const t = bcActx.currentTime;
+      bcTap.gain.cancelScheduledValues(t);
+      bcTap.gain.setValueAtTime(bcTap.gain.value, t);
+      bcTap.gain.linearRampToValueAtTime(0.12, t + 1.2);
     }
-    if (bcActx) bcActx.suspend();
     document.body.classList.remove('info-open');
     transBusy = false;
-  }, returningFromLast ? 2500 : 2000);
+  }, 2000);
 }
 document.querySelector('#links a[aria-label="info"]').addEventListener('click', e => {
   e.preventDefault();
   openInfo();
 });
 document.getElementById('infoClose').addEventListener('click', closeInfo);
+const creditsListEl = document.getElementById('creditsList');
+document.getElementById('credits').addEventListener('click', () => {
+  creditsListEl.classList.toggle('show');
+});
 addEventListener('keydown', e => {
   if (!infoOpen) return;
   if (e.key === 'Escape') closeInfo();
@@ -409,7 +438,8 @@ addEventListener('pointerup', () => {
 /* a click (not a drag) advances a screen; clicking past the last one heads home */
 infoEl.addEventListener('click', e => {
   if (!infoOpen || dragMoved > 8) return;
-  if (e.target.closest('.homebtn') || e.target.closest('#infoClose')) return;
+  if (e.target.closest('.homebtn') || e.target.closest('#infoClose') ||
+      e.target.closest('#credits') || e.target.closest('#creditsList')) return;
   const next = Math.round(goal) + 1;
   if (next > LAST) closeInfo();
   else goal = next;
@@ -703,6 +733,15 @@ function resize() {
 resize();
 addEventListener('resize', resize);
 
+/* cursor tracking for the home preset: target from pointer, smoothed each
+   frame, squashed through tanh so it saturates near the edges — same math as
+   the old home sim, but fed to the preset via q30/q31 (milkdrop uv, y down) */
+let bcMouseTX = 0.5, bcMouseTY = 0.5, bcCurX = 0.5, bcCurY = 0.5;
+addEventListener('pointermove', e => {
+  bcMouseTX = e.clientX / innerWidth;
+  bcMouseTY = e.clientY / innerHeight;
+});
+
 let last = performance.now();
 let start = last;
 let homeDiveStart = -1, homeDiveDuration = 1;
@@ -724,15 +763,17 @@ function frame(now) {
      the wave and feeders dim, beat flashes pause */
   calm += (calmT - calm) * Math.min(1, dt * 2.5);
   if (infoOpen || calm > 0.01) updateScreens(dt);
-  if (bcActive && bcViz) bcViz.render();
-  else if (bcViz && bcPrimeFrames < 20) {
-    bcViz.render();
-    bcPrimeFrames++;
+  bcCurX += (bcMouseTX - bcCurX) * Math.min(1, dt * 8);
+  bcCurY += (bcMouseTY - bcCurY) * Math.min(1, dt * 8);
+  window.__bcCurX = 0.5 + 0.5 * Math.tanh(2.2 * (bcCurX - 0.5));
+  window.__bcCurY = 0.5 + 0.5 * Math.tanh(2.2 * (bcCurY - 0.5));
+  if (bcViz) {
+    if (bcGrooveBuf && bcActx.state !== 'running') bcViz.render({ audioLevels: grooveSlice(now) });
+    else bcViz.render();
   }
-  /* the back room canvas is opaque once fully open: skip the entire home
-     sim below while it's covered, so only one full-screen sim ever runs.
-     it resumes the moment closeInfo flips infoOpen off, under the fade */
-  if (infoOpen && !transBusy) return;
+  /* HOME_BC: butterchurn carries the main page too, so the parked home sim
+     below never runs — remove this return to bring it back */
+  return;
   hueBalls -= dt * 0.05 * (1 - 0.7 * calm); /* reverse: red→purple→blue→green→yellow */
   hueMid += dt * 0.05 * (1 - 0.7 * calm);   /* blue→purple→red→yellow→green */
 
