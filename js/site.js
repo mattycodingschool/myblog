@@ -30,16 +30,39 @@ const TINTS = {
   instagram: 'radial-gradient(circle at 28% 110%, #feda75 0%, #fa7e1e 28%, #d62976 58%, #962fbf 85%, #4f5bd5 100%)',
   linkedin: 'linear-gradient(160deg, #0a66c2, #4d94e8 44%, #dce9fb 52%, #0a4faf 61%, #063a8a)',
   email: 'linear-gradient(180deg, #40d4e8, #19c9fb 50%, #7fe8d8)',
-  info: 'linear-gradient(160deg, #f6d77b, #eda63b 42%, #fdeec2 52%, #b97a1e 64%, #8a5a12)',
+  info: 'tiles',
 };
+/* info wash: every tile random, but seeded from its neighbors' average, so
+   the field reads as one connected drifting gradient rather than confetti */
+function infoTileWash() {
+  const C = 24, R = 15;
+  const cv = document.createElement('canvas');
+  cv.width = C; cv.height = R;
+  const cx = cv.getContext('2d');
+  const h = [];
+  for (let y = 0; y < R; y++) {
+    h[y] = [];
+    for (let x = 0; x < C; x++) {
+      const n = [];
+      if (x) n.push(h[y][x - 1]);
+      if (y) n.push(h[y - 1][x]);
+      const base = n.length ? n.reduce((s, v) => s + v, 0) / n.length : Math.random() * 360;
+      h[y][x] = base + (Math.random() - 0.5) * 44;
+      cx.fillStyle = `hsl(${h[y][x]}, 85%, 55%)`;
+      cx.fillRect(x, y, 1, 1);
+    }
+  }
+  return `url(${cv.toDataURL()}) center / 100% 100%`;
+}
 document.querySelectorAll('#links a').forEach(a => {
   const g = TINTS[a.getAttribute('aria-label')];
   if (!g) return;
   const show = () => {
-    if (tintCurrent !== g) {
+    const bg = g === 'tiles' ? infoTileWash() : g;
+    if (tintCurrent !== bg) {
       tintFront = 1 - tintFront;
-      tintLayers[tintFront].style.background = g;
-      tintCurrent = g;
+      tintLayers[tintFront].style.background = bg;
+      tintCurrent = bg;
     }
     tintLayers[tintFront].style.opacity = '0.95';
     tintLayers[1 - tintFront].style.opacity = '0';
