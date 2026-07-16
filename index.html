@@ -83,5 +83,11 @@
 </div>
 
 <script src="js/site.js?v=34"></script>
+<script>
+  ['instagram', 'linkedin', 'email', 'info'].forEach(label => {
+    const a = document.querySelector('#links a[aria-label="' + label + '"]');
+    if (a) a.addEventListener('click', () => gtag('event', label + '_click'));
+  });
+</script>
 </body>
 </html>
