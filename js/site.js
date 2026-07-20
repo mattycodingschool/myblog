@@ -465,7 +465,7 @@ addEventListener('pointerup', () => {
 infoEl.addEventListener('click', e => {
   if (!infoOpen || dragMoved > 8) return;
   if (e.target.closest('.homebtn') || e.target.closest('#infoClose') ||
-      e.target.closest('#credits') || e.target.closest('#creditsList')) return;
+      e.target.closest('#creditsList')) return;
   const next = Math.round(goal) + 1;
   if (next > LAST) closeInfo();
   else goal = next;
